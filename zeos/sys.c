@@ -16,32 +16,51 @@
 #define LECTURA 0
 #define ESCRIPTURA 1
 
-int check_fd(int fd, int permissions)
-{
-  if (fd!=1) return -9; /*EBADF*/
-  if (permissions!=ESCRIPTURA) return -13; /*EACCES*/
-  return 0;
+int check_fd(int fd, int permissions) {
+	if (fd!=1) return -9; /*EBADF*/
+	if (permissions!=ESCRIPTURA) return -13; /*EACCES*/
+	return 0;
 }
 
-int sys_ni_syscall()
-{
+int sys_ni_syscall() {
 	return -38; /*ENOSYS*/
 }
 
-int sys_getpid()
-{
+int sys_getpid() {
 	return current()->PID;
 }
 
-int sys_fork()
-{
-  int PID=-1;
+int sys_fork() {
+	int PID=-1;
 
-  // creates the child process
-  
-  return PID;
+	// creates the child process
+
+	return PID;
 }
 
 void sys_exit()
 {  
 }
+
+int sys_write(int fd, char * buffer, int size) {
+
+	//parameter checking	
+	int err = check_fd(fd,ESCRIPTURA);
+	if (err)
+		return err;
+	if (buffer == NULL || size <= 0)
+		return -1;
+
+	//parameters OK
+	copy_from_user	
+	
+	
+}
+
+
+
+
+
+
+
+
