@@ -52,8 +52,8 @@ int sys_write(int fd, char * buffer, int size) {
 		return -1;
 
 	//parameters OK
-	copy_from_user	
-	
+	//copy_from_user	
+	return 0;
 	
 }
 
