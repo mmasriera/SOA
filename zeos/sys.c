@@ -2,16 +2,12 @@
  * sys.c - Syscalls implementation
  */
 #include <devices.h>
-
 #include <utils.h>
-
 #include <io.h>
-
 #include <mm.h>
-
 #include <mm_address.h>
-
 #include <sched.h>
+#include <errno.h>
 
 #define LECTURA 0
 #define ESCRIPTURA 1
@@ -55,9 +51,11 @@ int sys_write(int fd, char * buffer, int size) {
 
 	if (err)
 		return err;
-	if (buffer == NULL || size <= 0)
-		return -1;		// possibly we should create many ERR codes
-
+	if (buffer == NULL)
+		return -ENULLBUFFER;
+	if (size <= 0)
+		return -ENEGATIVESIZE;
+	
 	//parameters OK
 	int	written = 0;	//number of chars written
 
