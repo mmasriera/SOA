@@ -41,8 +41,15 @@ int strlen(char *a) {
     return i;
 }
 
+/** write syscall wrapper
+* int fd : file descriptor
+* char * buffer : pointer to the char array    
+* int size : # bytes
+*
+* result : #bytes written if OK, negative otherwise
+*/
 int write (int fd, char * buffer, int size) {
-    //return 1/0;
+    
     int result;
 
     __asm__ __volatile__(
