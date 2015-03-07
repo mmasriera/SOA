@@ -70,8 +70,9 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL) {
 	idt[vector].highOffset      = highWord((DWord)handler);
 }
 
+/*handler headers*/
 void keyboard_handler(void);
-void system_call_handler(void);
+void system_call_handler(void);	//used by all the syscalls
 
 
 void setIdt() {

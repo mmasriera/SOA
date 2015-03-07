@@ -84,7 +84,7 @@ ENTRY(system_call_handler)
         jl err
         cmpl $MAX_SYSCALL, %eax
         jg err
-        call *sys_call_table(, %eax, 0x04)
+        call *sys_call_table(, %eax, 0x04) /*eax contains the syscall id*/
         jmp fin
 err:
         movl $-ENOSYS, %eax
