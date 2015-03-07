@@ -90,14 +90,12 @@ void setIdt() {
 
 void keyboard_routine() {
 
-	char c = inb(0x60);
+	char c = inb(0x60); //kbd port 0x60
 	char mask = 0x80;
 
 	//if key pressed bit7 == 0
-	if (0 == (mask & c)) {
-		char x = char_map[(c & 0x7F)];
-		printc(x);
-		
-	}
+	if ((mask & c) == 0)
+		printc(char_map[(c & 0x7F)]);	
+	
 } 
 
