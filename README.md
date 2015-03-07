@@ -5,6 +5,8 @@
 ###Lab1
 - [x] keyboard interrupt
 - [x] write syscall
-- [ ] clock interrupt
+- [ ] errno and perror
+- [x] clock interrupt (v1)
+- [ ] clock interrupt (v2)
 
 
