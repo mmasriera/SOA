@@ -71,11 +71,12 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL) {
 }
 
 /*handler headers*/
-void keyboard_handler(void);
-void system_call_handler(void);	//used by all the syscalls
+void keyboard_handler();
+void clock_handler();
+void system_call_handler();	//used by all the syscalls
 
 
-void setIdt() {
+void setIdt () {
 	/* Program interrups/exception service routines */
 	idtR.base  = (DWord)idt;
 	idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
@@ -83,20 +84,31 @@ void setIdt() {
 	set_handlers();
 
 	/* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
-	setInterruptHandler(33, keyboard_handler, 3);
+	setInterruptHandler(33, keyboard_handler, 0);
+	setInterruptHandler(32, clock_handler, 0);
 	setTrapHandler(0x80, system_call_handler, 3);
 
 	set_idt_reg(&idtR);
 }
 
-void keyboard_routine() {
+
+void keyboard_routine () {
 
 	char c = inb(0x60); //kbd port 0x60
 	char mask = 0x80;
 
 	//if key pressed bit7 == 0
 	if ((mask & c) == 0)
-		printc(char_map[(c & 0x7F)]);	
-	
+		printc(char_map[(c & 0x7F)]);
+
+	return 1;	
 } 
+
+
+void clock_routine() {
+
+	zeos_show_clock();
+
+	return 1;
+}
 

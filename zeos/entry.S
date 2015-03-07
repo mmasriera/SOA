@@ -71,6 +71,29 @@
 	movb $0x20, %al ; \
 	outb %al, $0x20 ;
 
+
+/**
+	syscall handler
+*/
+ENTRY(system_call_handler)
+        SAVE_ALL;
+        cmpl $0, %eax;
+        jl err;
+        cmpl $MAX_SYSCALL, %eax;
+        jg err;
+        call *sys_call_table(, %eax, 0x04);
+        jmp fin;
+err:
+        movl $-ENOSYS, %eax;
+fin:
+        movl %eax, 0x18(%esp);
+        RESTORE_ALL;
+        iret;
+
+
+/**
+	keyboard handler
+*/
 ENTRY(keyboard_handler)
 	SAVE_ALL;
 	EOI;
@@ -78,20 +101,13 @@ ENTRY(keyboard_handler)
 	RESTORE_ALL;
 	iret;
 
-ENTRY(system_call_handler)
-        SAVE_ALL
-        cmpl $0, %eax
-        jl err
-        cmpl $MAX_SYSCALL, %eax
-        jg err
-        call *sys_call_table(, %eax, 0x04) /*eax contains the syscall id*/
-        jmp fin
-err:
-        movl $-ENOSYS, %eax
-fin:
-        movl %eax, 0x18(%esp)
-        RESTORE_ALL
-        iret
 
-
-
+/**
+	clock handler
+*/
+ENTRY(clock_handler)
+	SAVE_ALL;
+	EOI;
+	call clock_routine;
+	RESTORE_ALL;
+	iret;
