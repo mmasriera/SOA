@@ -70,10 +70,7 @@ void init_idle (void) {
 	// inicilitzo el seu direcori de pagines
 	int allocResult = allocate_DIR(idle_task);
 
-
-	/*tu->task->page_table_entry = allocate_DIR(list_head_to_task_struct(&freequeue));
-
-	//preparar el context perque sigui restaurat
+	/* preparar el context perque sigui restaurat
 	tu->stack[KERNEL_STACK_SIZE-1] = cpu_idle;
 	tu->stack[KERNEL_STACK_SIZE-2] = 0;
 	&tu->stack[KERNEL_STACK_SIZE-2];*/
