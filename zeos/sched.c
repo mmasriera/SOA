@@ -65,16 +65,19 @@ void init_idle (void) {
 	struct list_head *firstNode = list_first(&freequeue);
 	// carrego l'idle_task amb el task struct d'aquest 1r element
 	idle_task = list_head_to_task_struct(firstNode);
-
 	idle_task->PID = 0;
 	// inicilitzo el seu direcori de pagines
-	int allocResult = allocate_DIR(idle_task);
+	allocate_DIR(idle_task); //retorna 1 --> modificar?
 
-	/* preparar el context perque sigui restaurat
-	tu->stack[KERNEL_STACK_SIZE-1] = cpu_idle;
-	tu->stack[KERNEL_STACK_SIZE-2] = 0;
-	&tu->stack[KERNEL_STACK_SIZE-2];*/
+	//perque es pugui restaurar el context despres d'un task switch
+	//agafo l'union del idle process per a fer servir la pila
+	union task_union * idle_union = (union task_union *) idle_task;
+	idle_union->stack[KERNEL_STACK_SIZE - 1] = cpu_idle;
+	idle_union->stack[KERNEL_STACK_SIZE - 2] = 0; //posem 0 pero es igualel valor
+	//posar el kernel esp al top de la pila
+	idle_task->kernel_esp = (unsigned long) &idle_union->stack[KERNEL_STACK_SIZE - 2];
 }
+
 
 void init_task1(void) {
 }
