@@ -49,40 +49,49 @@ int allocate_DIR(struct task_struct *t)
 	return 1;
 }
 
-void cpu_idle(void)
-{
+
+void cpu_idle (void) {
+
 	__asm__ __volatile__("sti": : :"memory");
 
-	while(1)
-	{
-	;
+	while (1) {
+		;
 	}
 }
 
 void init_idle (void) {
 
-	union task_union *tu = (union task_union *) list_head_to_task_struct(&freequeue);
-	tu->task->PID = 0;
-	tu->task->page_table_entry = allocate_DIR(list_head_to_task_struct(&freequeue));
+	// 1r node de la freequeue
+	struct list_head *firstNode = list_first(&freequeue);
+	// carrego l'idle_task amb el task struct d'aquest 1r element
+	idle_task = list_head_to_task_struct(firstNode);
 
+	idle_task->PID = 0;
+	// inicilitzo el seu direcori de pagines
+	int allocResult = allocate_DIR(idle_task);
+
+
+	/*tu->task->page_table_entry = allocate_DIR(list_head_to_task_struct(&freequeue));
+
+	//preparar el context perque sigui restaurat
 	tu->stack[KERNEL_STACK_SIZE-1] = cpu_idle;
 	tu->stack[KERNEL_STACK_SIZE-2] = 0;
-	&tu->stack[KERNEL_STACK_SIZE-2];
-	//tu->task->kernel_esp = tu->stack + (KERNEL_STACK_SIZE - 2) * sizeof(unsigned long);
+	&tu->stack[KERNEL_STACK_SIZE-2];*/
 }
 
 void init_task1(void) {
 }
 
 
-void init_sched() {
-	int i = 0;
+void init_sched () {
+	
+	int i;
 	INIT_LIST_HEAD(&freequeue);
 	INIT_LIST_HEAD(&readyqueue);
 
-	for(i; i < NR_TASKS;++i) {
+	for (i = 0; i < NR_TASKS; ++i) 
 		list_add(&task[i].task.list, &freequeue);
-	}
+
 }
 
 
@@ -104,6 +113,5 @@ struct task_struct* current()
 struct task_struct *list_head_to_task_struct (struct list_head *l) {
 
 	return (struct task_struct*) ((unsigned int)l & 0xfffff000);
-	//return list_entry(l, struct task_struct, list);
 }
 
