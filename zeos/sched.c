@@ -59,6 +59,7 @@ void cpu_idle (void) {
 	}
 }
 
+
 void init_idle (void) {
 
 	// 1r node de la freequeue
@@ -79,7 +80,7 @@ void init_idle (void) {
 }
 
 
-void init_task1(void) {
+void init_task1 (void) {
 }
 
 
