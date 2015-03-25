@@ -72,32 +72,34 @@ void init_idle (void) {
 	// inicilitzo el seu direcori de pagines
 	allocate_DIR(idle_task); // no estaria mal comprovar errors
 
-	//perque es pugui restaurar el context despres d'un task switch
-	//agafo l'union del idle process per a fer servir la pila
+	// perque es pugui restaurar el context despres d'un task switch
+	// agafo l'union del idle process per a fer servir la pila
 	union task_union * idle_union = (union task_union *) idle_task;
 	idle_union->stack[KERNEL_STACK_SIZE - 1] = cpu_idle;
 	idle_union->stack[KERNEL_STACK_SIZE - 2] = 0; //posem 0 pero es igualel valor
-	//posar el kernel esp al top de la pila
+	// posar el kernel esp al top de la pila
 	idle_task->kernel_esp = (unsigned long) &idle_union->stack[KERNEL_STACK_SIZE - 2];
-	
 }
 
 
 void init_task1 (void) {
 
-	//posar el pid a 1
+	// posar el pid a 1
 	struct list_head *firstNode = list_first(&freequeue);
 	list_del(firstNode); // l'eliminem
 
 	struct task_struct * init_task = list_head_to_task_struct(firstNode);
 	init_task->PID = 1;
-	//posem l'esp al top de la pila
-	union task_union * init_union = (union task_union *) init_task;
-	init_task->kernel_esp = (unsigned long) &init_union->stack[KERNEL_STACK_SIZE];
 
 	// init direcotri de pagines
 	allocate_DIR(init_task); // no estaria mal comprovar errors
 
+	// init espai de direccions
+	set_user_pages(init_task);
+
+	// posem l'esp al top de la pila
+	union task_union * init_union = (union task_union *) init_task;
+	init_task->kernel_esp = (unsigned long) &init_union->stack[KERNEL_STACK_SIZE];
 
 }
 
