@@ -161,21 +161,18 @@ void task_switch(union task_union *newTu) {
 	);
 }
 
-void inner_task_switch (union task_union* t) {
+void inner_task_switch (union task_union* newTu) {
 
-	tss.esp0 = (unsigned long) &t->stack[KERNEL_STACK_SIZE];
+	tss.esp0 = (unsigned long) &newTu->stack[KERNEL_STACK_SIZE];
 	
-	struct task_struct * newTS = (struct task_struct*) t->task;
-	set_cr3(get_DIR(newTS));
+	set_cr3(get_DIR(&newTu->task));
 
 	struct task_struct * curr = current();
 
 	__asm__ __volatile__ (
 	 	"movl %%ebp, %0"
-	 	:"=g" (curr->kernel_esp);
+	 	:"=g" (curr->kernel_esp)
 	);
-
-	
 }
 
 
