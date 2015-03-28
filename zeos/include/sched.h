@@ -8,6 +8,7 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <errno.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024

@@ -142,6 +142,7 @@
 
 #define ENULLBUFFER 132
 #define ENEGATIVESIZE 133
+#define E_NOT_DIR_ALLOCATED 134
 	
 #endif
 	

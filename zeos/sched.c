@@ -70,7 +70,8 @@ void init_idle (void) {
 	idle_task = list_head_to_task_struct(firstNode);
 	idle_task->PID = 0;
 	// inicilitzo el seu direcori de pagines
-	allocate_DIR(idle_task); // no estaria mal comprovar errors
+	int e = allocate_DIR(idle_task); 
+	if(!e) return -E_NOT_DIR_ALLOCATED;
 
 	// perque es pugui restaurar el context despres d'un task switch
 	// agafo l'union del idle process per a fer servir la pila
@@ -92,14 +93,20 @@ void init_task1 (void) {
 	init_task->PID = 1;
 
 	// init direcotri de pagines
-	allocate_DIR(init_task); // no estaria mal comprovar errors
+	int e = allocate_DIR(init_task); 
+	if(!e) return -E_NOT_DIR_ALLOCATED;
 
 	// init espai de direccions
 	set_user_pages(init_task);
 
 	// posem l'esp al top de la pila
 	union task_union * init_union = (union task_union *) init_task;
-	init_task->kernel_esp = (unsigned long) &init_union->stack[KERNEL_STACK_SIZE];
+
+	// update TSS to make it point the new task segment stack
+	tss.esp0 = (unsigned long) &init_union->stack[KERNEL_STACK_SIZE];
+
+	// set its page directory as the current page directory in the system
+	set_cr3(get_DIR(init_task));
 
 }
 
@@ -135,4 +142,41 @@ struct task_struct *list_head_to_task_struct (struct list_head *l) {
 
 	return (struct task_struct*) ((unsigned int)l & 0xfffff000);
 }
+
+/**
+*/
+void task_switch(union task_union *newTu) {
+	__asm__ __volatile__(
+		"pushl %esi;"
+		"pushl %edi;"
+		"pushl %ebx;"
+	);
+
+	inner_task_switch(newTu);
+
+	__asm__ __volatile__(
+		"popl %ebx;"
+		"popl %edi;"
+		"popl %esi;"
+	);
+}
+
+void inner_task_switch (union task_union* t) {
+
+	tss.esp0 = (unsigned long) &t->stack[KERNEL_STACK_SIZE];
+	
+	struct task_struct * newTS = (struct task_struct*) t->task;
+	set_cr3(get_DIR(newTS));
+
+	struct task_struct * curr = current();
+
+	__asm__ __volatile__ (
+	 	"movl %%ebp, %0"
+	 	:"=g" (curr->kernel_esp);
+	);
+
+	
+}
+
+
 
