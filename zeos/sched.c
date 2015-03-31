@@ -170,9 +170,31 @@ void inner_task_switch (union task_union* newTu) {
 	struct task_struct * curr = current();
 
 	__asm__ __volatile__ (
-	 	"movl %%ebp, %0"
-	 	:"=g" (curr->kernel_esp)
+	 	"movl %%ebp, %0"			
+	 	:"=g" (curr->kernel_esp)	// output
 	);
+
+	/*CANVI! Restaurem ebp i ja som al nou procés*/
+	__asm__ __volatile__ (
+		"movl %0, %%esp\n\t"
+		:								// output
+		:"g" (newTu->task.kernel_esp)	// input
+	);
+
+	/*Restaurem ebp de la pila*/
+  	__asm__ __volatile__ (
+  		"popl %%ebp\n\t"
+		:
+		:
+	);	
+
+  	/*return*/
+	__asm__ __volatile__ (
+		"ret\n\t"
+		:
+		:
+	);
+
 }
 
 
