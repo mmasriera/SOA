@@ -66,3 +66,32 @@ int write (int fd, char * buffer, int size) {
     return result;
 }
 
+
+int gettime () {
+
+    int result;
+
+    __asm__ __volatile__ (
+        "int $0x80"
+        :"=a" (result)
+        :"a" (10)
+    );
+
+    errno = 0;
+    return result;
+}
+
+
+int getpid () {
+
+    int result;
+
+    __asm__ __volatile__ (
+        "int $0x80"
+        :"=a" (result)
+        :"a" (20)
+    );
+
+    errno = 0;
+    return result;
+}

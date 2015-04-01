@@ -104,10 +104,12 @@ void keyboard_routine () {
 	return 1;	
 } 
 
+int zeos_ticks = 0;
 
 void clock_routine() {
 
 	zeos_show_clock();
+	++zeos_ticks;
 
 	return 1;
 }
