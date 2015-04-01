@@ -34,8 +34,8 @@ extern union task_union *task; /* Vector de tasques */
 
 struct task_struct *idle_task; //variable per al task_struct del porces idle
 
-struct list_head freequeue;
-struct list_head readyqueue;
+extern struct list_head freequeue;
+extern struct list_head readyqueue;
 
 
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]

@@ -25,6 +25,9 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 extern struct list_head blocked;
 
 
+struct list_head freequeue;
+struct list_head readyqueue;
+
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
 {
@@ -69,17 +72,17 @@ void init_idle (void) {
 	// carrego l'idle_task amb el task struct d'aquest 1r element
 	idle_task = list_head_to_task_struct(firstNode);
 	idle_task->PID = 0;
+	
 	// inicilitzo el seu direcori de pagines
-	int e = allocate_DIR(idle_task); 
-	if(!e) return -E_NOT_DIR_ALLOCATED;
+	allocate_DIR(idle_task);
 
 	// perque es pugui restaurar el context despres d'un task switch
 	// agafo l'union del idle process per a fer servir la pila
 	union task_union * idle_union = (union task_union *) idle_task;
-	idle_union->stack[KERNEL_STACK_SIZE - 1] = cpu_idle;
+	idle_union->stack[KERNEL_STACK_SIZE - 1] = (unsigned long) &cpu_idle;
 	idle_union->stack[KERNEL_STACK_SIZE - 2] = 0; //posem 0 pero es igualel valor
 	// posar el kernel esp al top de la pila
-	idle_task->kernel_esp = (unsigned long) &idle_union->stack[KERNEL_STACK_SIZE - 2];
+	idle_task->kernel_esp = (int) &(idle_union->stack[KERNEL_STACK_SIZE - 2]);
 }
 
 
@@ -94,7 +97,8 @@ void init_task1 (void) {
 
 	// init direcotri de pagines
 	int e = allocate_DIR(init_task); 
-	if(!e) return -E_NOT_DIR_ALLOCATED;
+	if(!e)
+		return -E_NOT_DIR_ALLOCATED;
 
 	// init espai de direccions
 	set_user_pages(init_task);
@@ -103,23 +107,27 @@ void init_task1 (void) {
 	union task_union * init_union = (union task_union *) init_task;
 
 	// update TSS to make it point the new task segment stack
-	tss.esp0 = (unsigned long) &init_union->stack[KERNEL_STACK_SIZE];
+	tss.esp0 = (unsigned long) &(init_union->stack[KERNEL_STACK_SIZE]);
 
 	// set its page directory as the current page directory in the system
-	set_cr3(get_DIR(init_task));
+	set_cr3(init_task->dir_pages_baseAddr);
 
 }
 
 
 void init_sched () {
 	
+	//init freequeue
 	int i;
 	INIT_LIST_HEAD(&freequeue);
+
+	for (i = 0; i < NR_TASKS; ++i) {
+
+		task[i].task.PID = -1;
+		list_add_tail(&(task[i].task.list), &freequeue);
+	}
+	//init readyqueue
 	INIT_LIST_HEAD(&readyqueue);
-
-	for (i = 0; i < NR_TASKS; ++i) 
-		list_add(&task[i].task.list, &freequeue);
-
 }
 
 
@@ -146,6 +154,7 @@ struct task_struct *list_head_to_task_struct (struct list_head *l) {
 /**
 */
 void task_switch(union task_union *newTu) {
+
 	__asm__ __volatile__(
 		"pushl %esi;"
 		"pushl %edi;"
@@ -163,15 +172,16 @@ void task_switch(union task_union *newTu) {
 
 void inner_task_switch (union task_union* newTu) {
 
-	tss.esp0 = (unsigned long) &newTu->stack[KERNEL_STACK_SIZE];
+	//TSS apunta a la nova pila
+	tss.esp0 = (int) &(newTu->stack[KERNEL_STACK_SIZE]);
 	
+	//cr3 té la @ del directori de pgs del nou procés
 	set_cr3(get_DIR(&newTu->task));
-
-	struct task_struct * curr = current();
 
 	__asm__ __volatile__ (
 	 	"movl %%ebp, %0"			
-	 	:"=g" (curr->kernel_esp)	// output
+	 	:"=g" (current()->kernel_esp)	// output
+		:
 	);
 
 	/*CANVI! Restaurem ebp i ja som al nou procés*/
