@@ -8,7 +8,7 @@
 
 int errno;
 
-void itoa(int a, char *b) {
+void itoa (int a, char *b) {
     int i, i1;
     char c;
 
@@ -95,3 +95,34 @@ int getpid () {
     errno = 0;
     return result;
 }
+
+
+int fork () {
+
+    int result;
+
+    __asm__ __volatile__ (
+        "int $0x80"
+        :"=a" (result)
+        :"a" (2)
+    );
+
+    if (result < 0) {
+
+        errno = -result;
+        return -1;
+    }
+
+    errno = 0;
+    return result;
+}
+
+
+void perror () {
+
+    char buffer[256];
+
+    //itoa(errno, buffer);
+    //write(1, buffer, strlen(buffer));
+}
+

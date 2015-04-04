@@ -14,6 +14,8 @@ void itoa(int a, char *b);
 
 int strlen(char *a);
 
+void perror();
+
 int getpid();
 
 int fork();
