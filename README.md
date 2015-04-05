@@ -6,8 +6,8 @@
 - [x] keyboard interrupt
 - [x] write syscall
 - [x] errno and perror
-- [x] clock interrupt (v1)
-- [x] clock interrupt (v2)
+- [x] clock interrupt
+- [x] clock syscall
 
 ###Lab2
 - [x] init process
