@@ -2,18 +2,22 @@
 
 ##Sistemes operatius avançats
 
-###Lab1
+###part1
 - [x] keyboard interrupt
 - [x] write syscall
 - [x] errno and perror
 - [x] clock interrupt
 - [x] clock syscall
 
-###Lab2
+###part2
 - [x] init process
 - [x] idle process
 - [x] process switch
 - [x] fork
 - [x] RR
 - [x] exit
-- [ ] stats
+- [x] stats
+ 
+###part3
+- [x] support to different scheduling policies
+- [ ] blocked processes
