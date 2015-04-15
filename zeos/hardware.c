@@ -71,7 +71,7 @@ void return_gate(Word ds, Word ss, DWord esp, Word cs, DWord eip)
     "pushl %4\n\t"       /* user eip */
     "lret"
     : /*no output*/
-    : "r" (ds), "g" (ss), "g" (esp), "g" (cs), "g" (eip), "d" (*p_rdtr));
+    : "g" (ds), "g" (ss), "g" (esp), "g" (cs), "g" (eip), "d" (*p_rdtr));
 }
 
 /*
@@ -103,8 +103,7 @@ __asm__ __volatile__(
   "call delay\n\t"
   "sti"
   : /*no output*/
-  /* 0xFF = 1111 1111 -> all bits disabled */
-  : "i" (0xfc)  /*1111 1100*/
+  : "i" (0xfc)       /* 0xFF = 11111111 -> all bits disabled */
   : "%al" );
 }
 

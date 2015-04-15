@@ -38,41 +38,41 @@ TSS         tss;
   
 void init_dir_pages()
 {
-int i;
+    int i;
 
-for (i = 0; i< NR_TASKS; i++) {
-  dir_pages[i][ENTRY_DIR_PAGES].entry = 0;
-  dir_pages[i][ENTRY_DIR_PAGES].bits.pbase_addr = (((unsigned int)&pagusr_table[i]) >> 12);
-  dir_pages[i][ENTRY_DIR_PAGES].bits.user = 1;
-  dir_pages[i][ENTRY_DIR_PAGES].bits.rw = 1;
-  dir_pages[i][ENTRY_DIR_PAGES].bits.present = 1;
+    for (i = 0; i< NR_TASKS; i++) {
+        dir_pages[i][ENTRY_DIR_PAGES].entry = 0;
+        dir_pages[i][ENTRY_DIR_PAGES].bits.pbase_addr = (((unsigned int)&pagusr_table[i]) >> 12);
+        dir_pages[i][ENTRY_DIR_PAGES].bits.user = 1;
+        dir_pages[i][ENTRY_DIR_PAGES].bits.rw = 1;
+        dir_pages[i][ENTRY_DIR_PAGES].bits.present = 1;
 
-}
+    }
 
 }
 
 /* Initializes the page table (kernel pages only) */
 void init_table_pages()
 {
-  int i,j;
-  /* reset all entries */
-for (j=0; j< NR_TASKS; j++) {
-  for (i=0; i<TOTAL_PAGES; i++)
-    {
-      pagusr_table[j][i].entry = 0;
+    int i,j;
+    /* reset all entries */
+    for (j=0; j< NR_TASKS; j++) {
+        for (i=0; i<TOTAL_PAGES; i++)
+        {
+            pagusr_table[j][i].entry = 0;
+        }
+        /* Init kernel pages */
+        for (i=1; i<NUM_PAG_KERNEL; i++) // Leave the page inaccessible to comply with NULL convention 
+        {
+            // Logical page equal to physical page (frame)
+            pagusr_table[j][i].bits.pbase_addr = i;
+            pagusr_table[j][i].bits.rw = 1;
+            pagusr_table[j][i].bits.present = 1;
+        }
+        /* Protect the task array by using a couple of invalid pages before and after the task array */
+        pagusr_table[j][PH_PAGE((DWord)(&protected_tasks[0]))].bits.present = 0;
+        pagusr_table[j][PH_PAGE((DWord)(&protected_tasks[11]))].bits.present = 0;
     }
-  /* Init kernel pages */
-  for (i=1; i<NUM_PAG_KERNEL; i++) // Leave the page inaccessible to comply with NULL convention 
-    {
-      // Logical page equal to physical page (frame)
-      pagusr_table[j][i].bits.pbase_addr = i;
-      pagusr_table[j][i].bits.rw = 1;
-      pagusr_table[j][i].bits.present = 1;
-    }
-  /* Protect the task array by using a couple of invalid pages before and after the task array */
-  pagusr_table[j][PH_PAGE((DWord)(&protected_tasks[0]))].bits.present = 0;
-  pagusr_table[j][PH_PAGE((DWord)(&protected_tasks[11]))].bits.present = 0;
-}
 }
 
 
@@ -241,6 +241,7 @@ void free_user_pages( struct task_struct *task )
 /* free_frame - Mark as FREE_FRAME the frame  'frame'.*/
 void free_frame( unsigned int frame )
 {
+    /* You must insert code here */
     if ((frame>NUM_PAG_KERNEL)&&(frame<TOTAL_PAGES))
       phys_mem[frame]=FREE_FRAME;
 }

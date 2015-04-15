@@ -79,11 +79,11 @@ void minix_open(const char *name)
 	if (memcmp(buf, hdr, sizeof(hdr)) || lb[5])
 		die("%s: Non-Minix header", name);
 	if (lb[3])
-		die("%s: Illegal data segment", name);
+		die("%s: Illegal data segment");
 	if (lb[4])
-		die("%s: Illegal bss segment", name);
+		die("%s: Illegal bss segment");
 	if (lb[7])
-		die("%s: Illegal symbol table", name);
+		die("%s: Illegal symbol table");
 }
 
 void usage(void)
@@ -191,9 +191,9 @@ int main(int argc, char ** argv)
 	  die("Write of user length failed");
       if (lseek(1, 520, SEEK_SET) != 520)
 	  die("Output: seek failed");
-	buf[0] = (0x7DEB & 0xff);
-	buf[1] = ((0x7DEB >> 8) & 0xff);
-	buf[2] = ((0x7DEB >> 16) & 0xff);
+	buf[0] = (0x7DEA & 0xff);
+	buf[1] = ((0x7DEA >> 8) & 0xff);
+	buf[2] = ((0x7DEA >> 16) & 0xff);
 	buf[3] = 0;
 	if (write(1, buf, 4) != 4)
 	  die("Write of user length failed");

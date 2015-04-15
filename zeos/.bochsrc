@@ -1,6 +1,6 @@
 #romimage: file=$BXSHARE/BIOS-bochs-latest
-#vgaromimage: file=$BXSHARE/VGABIOS-elpin-2.40
 megs: 16
+#vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
 
 floppya: 1_44=./zeos.bin, status=inserted
 boot: floppy
@@ -13,10 +13,12 @@ info: action=report
 debug: action=ignore
 debugger_log: -
 
-vga_update_interval: 300000
-keyboard_serial_delay: 250
-keyboard_paste_delay: 100000
+#vga_update_interval: 300000
+#keyboard_serial_delay: 250
+#keyboard_paste_delay: 100000
 mouse: enabled=0
 private_colormap: enabled=0
-keyboard_mapping: enabled=0, map=
+#keyboard_mapping: enabled=0, map=
+
+port_e9_hack: enabled=1
 
