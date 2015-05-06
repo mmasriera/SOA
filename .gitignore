@@ -1,1 +1,3 @@
 .o
+sockets/client_*
+sockets/launch_info
