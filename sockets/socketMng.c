@@ -50,14 +50,20 @@ int createServerSocket (int port) {
 
 int acceptNewConnections (int socket_fd) {
 
-  struct sockaddr * addr;
-  socklen_t * len;
+  struct sockaddr addr;
+  socklen_t len;
 
-  int channel = accept(socket_fd, addr, len);
+  len = sizeof(socklen_t);
+  int channel = accept(socket_fd, &addr, &len);
 
-  if (channel < 0)
+  if (errno == EINTR) 
+    channel = accept(socket_fd, &addr, &len);
+  
+  if (channel < 0) {
+
     perror("error in accept");
-
+  }
+    
   return channel;
 }
 

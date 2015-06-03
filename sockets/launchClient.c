@@ -14,8 +14,8 @@ int max_concurrent = 0;
 int current_concurrent = 0;
 
 void trat_sigchld (int signum) {
-	while (waitpid(-1, NULL, WNOHANG) > 0)
-		current_concurrent --;
+    while (waitpid(-1, NULL, WNOHANG) > 0)
+        current_concurrent --;
 }
 
 main(int argc, char *argv[]) {
@@ -27,9 +27,9 @@ struct timeval init_t, end_t;
 gettimeofday(&init_t, NULL);
 
 if (argc != 5) {
-	sprintf(buf, "usage: %s num_clients num_it hostname port\n", argv[0]);
-	write(1, buf, strlen(buf));
-	exit(1);
+    sprintf(buf, "usage: %s num_clients num_it hostname port\n", argv[0]);
+    write(1, buf, strlen(buf));
+    exit(1);
 }
 
 signal(SIGCHLD,trat_sigchld);
@@ -37,31 +37,31 @@ nclients = atoi(argv[1]);
 
 fd = open("launch_info", O_CREAT|O_TRUNC|O_WRONLY, 0600);
 for (i=0; i<nclients;i++){
-	pidh =fork();
-	switch (pidh){
+    pidh =fork();
+    switch (pidh){
 
-	case -1: perror("Error creating client process");
-		 exit(1);
-	case 0:  
-		 sprintf(buf, "client_%d", i);
-		 fd = open (buf, O_CREAT|O_TRUNC|O_WRONLY, 0600); 
-		 if (fd < 0) {
-			perror("Opening client results file");
-		 } else {
-			dup2(fd, 2);
-			close(fd);
-		 }
+    case -1: perror("Error creating client process");
+         exit(1);
+    case 0:  
+         sprintf(buf, "client_%d", i);
+         fd = open (buf, O_CREAT|O_TRUNC|O_WRONLY, 0600); 
+         if (fd < 0) {
+            perror("Opening client results file");
+         } else {
+            dup2(fd, 2);
+            close(fd);
+         }
 
-		 execlp("./clientSocket", "clientSocket", argv[2], argv[3], argv[4],NULL);
-		perror("Error loading clientSocket");
-		exit(1);
-	}
-	current_concurrent++;
-	if (current_concurrent > max_concurrent) {
-	   max_concurrent = current_concurrent;
-	   sprintf(buf,"CURRENT MAX CONCURRENT CLIENTS: %d\n", max_concurrent);
-	   write(fd, buf, strlen(buf));
-	}
+         execlp("./clientSocket", "clientSocket", argv[2], argv[3], argv[4],NULL);
+        perror("Error loading clientSocket");
+        exit(1);
+    }
+    current_concurrent++;
+    if (current_concurrent > max_concurrent) {
+       max_concurrent = current_concurrent;
+       sprintf(buf,"CURRENT MAX CONCURRENT CLIENTS: %d\n", max_concurrent);
+       write(fd, buf, strlen(buf));
+    }
 }
 
 
