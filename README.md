@@ -1,6 +1,9 @@
 # SOA
 
 ##Sistemes operatius avançats
+[Guia docent](http://www.fib.upc.edu/fib/estudiar-enginyeria-informatica/assignatures/SOA.html)
+
+[Pàgina de SOA](http://docencia.ac.upc.edu/FIB/grau/SOA/#Objectius)
 
 ###part1
 - [x] keyboard interrupt
