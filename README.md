@@ -20,10 +20,9 @@
  
 ###part3
 - [x] support to different scheduling policies
-- [ ] blocked processes
+- [x] blocked processes
 
 ###part4
 - [x] sequential server
-- [ ] unbounded concurrent server
-- [ ] bounded concurrent server
-- [ ] ExtraBonus: concurrent server using threads
+- [x] unbounded concurrent server
+- [x] bounded concurrent server
