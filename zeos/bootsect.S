@@ -1,7 +1,3 @@
-# 1 "bootsect.S"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "bootsect.S"
 !
 !	bootsect.s    
 !
@@ -9,7 +5,7 @@
 ! L'arxiu compilat hauria d'ocupar, sense les capceleres, exactament 512
 ! bytes, que � la longitud del sector 0 d'un disquet.
 
-
+#define SEC_PISTA            18	! Modificar en cas d'utilitzar disquets
 				! diferents de 1.44Mb:
 				! 38: 2.88Mb; 18: 1.44Mb; 15: 1.2Mb; 9: 720kb
 .text
@@ -103,21 +99,21 @@ go:	mov	di,#0x4000-12	! 0x4000 is arbitrary value >= length of
 ! which should be safe to use; any *unused* memory location < 0xfff0
 ! should work here.
 
-
+#define	TEST_ADDR 0x7c
 
 	push	ds
 	xor	ax,ax		! segment 0x0000
 	mov	ds,ax
 	dec	ax		! segment 0xffff (HMA)
 	mov	gs,ax
-	mov	bx,[0x7c]	! we want to restore the value later
+	mov	bx,[TEST_ADDR]	! we want to restore the value later
 a20_wait:
 	inc	ax
-	mov	[0x7c],ax
+	mov	[TEST_ADDR],ax
 	seg	gs
-	cmp	ax,[0x7c+0x10]
+	cmp	ax,[TEST_ADDR+0x10]
 	je	a20_wait	! loop until no longer aliased
-	mov	[0x7c],bx	! restore original value
+	mov	[TEST_ADDR],bx	! restore original value
 	pop	ds
 
 ! well, that went ok, I hope. Now we have to reprogram the interrupts :-(
@@ -175,7 +171,7 @@ a20_wait:
 ! reasons why it might be a good idea. It won't hurt in any case.
 
 	mov	eax,#1		! protected mode (PE) bit
-	mov	cr0,eax		! a partir del 1 aix�ja � possible fer-ho
+	mov	cr0,eax		! a partir del i386 aix�ja � possible fer-ho
 
 ! Well, that certainly wasn't fun :-(. Hopefully it works, and we don't
 ! need no steenking BIOS anyway (except for the initial loading :-).
@@ -287,11 +283,11 @@ read_track:
 	popa
 	ret
 
-
-
-
-
-
+/*
+ * This procedure turns off the floppy drive motor, so
+ * that we enter the kernel in a known state, and
+ * don't have to worry about it later.
+ */
 kill_motor:
 	push dx
 	mov dx,#0x3f2
@@ -330,45 +326,45 @@ empty_8042_end_loop:
 ret
 
 sectors:
-	.word 18	! Modificar en cas d'utilitzar disquets  ! 18 sectores por pista: t�ico disquet de 1.44Mb
+	.word SEC_PISTA  ! 18 sectores por pista: t�ico disquet de 1.44Mb
 
 msg1:
 	.byte 13,10
 	.ascii "Loading.."
 
 .org 435
-gdt:		
+gdt:		/* GLOBAL DESCRIPTOR TABLE */
   .word  0,0,0,0          ! dummy
-                                 
+                                 /*    Table Indicator RPL */
   .word  0,0,0,0          ! sin usar
-      
+      /* pointed by __KERNEL_CS = 0x10 = 0000 0000 0001 0 0 00 */
   .word  0xFFFF           ! 4Gb - (0x100000*0x1000 = 4Gb)
   .word  0x0000           ! base address=0
   .byte  0x00,0x9a        ! code read/exec
   .byte  0xcf,0x00        ! granularity = 4096, 386 (+5th nibble of limit)
-    
+    /* pointed by __KERNEL_DS = 0x18 = 0000 0000 0001 1 0 00 */
   .word  0xFFFF           ! 4Gb - (0x100000*0x1000 = 4Gb)
   .word  0x0000           ! base address = 00 03 2000
   .byte  0x00,0x92        ! data read/write
   .byte  0xcf,0x00        ! granularity = 4096, 386 (+5th nibble of limit)
-      
+      /* pointed by __USER_CS = 0x23 = 0000 0000 0001 0 0 11 */
   .word  0xFFFF           ! 4Gb - (0x100000*0x1000 = 4Gb)
   .word  0x0000           ! base address=0
   .byte  0x00,0xfa        ! code read/exec
   .byte  0xcf,0x00        ! granularity = 4096, 386 (+5th nibble of limit)
-    
+    /* pointed by __USER_DS = 0x2B = 0000 0000 0001 1 0 11 */
   .word  0xFFFF           ! 4Gb - (0x100000*0x1000 = 4Gb)
   .word  0x0000           ! base address = 00 03 2000
   .byte  0x00,0xf2        ! data read/write
   .byte  0xcf,0x00        ! granularity = 4096, 386 (+5th nibble of limit)
-  
+  /*TSS*/
   .word  104,0
   .byte  0,0x89,0,0
 
 idt_48:
   .word  0,0,0
 
-
+/*.org 497*/
 setup_sects:
 	.byte SETUPSECS
 	.word	0	!dummy
